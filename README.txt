@@ -1,11 +1,14 @@
 WebXtractor-Web is a website frontend for the WebXtractor-PHP library
 
 WebXtractor-Web uses the 
+
  1) Zend Framework  				(not included in codebase)
    * MVC (controllers, views, services, models incl. data mappers best practice)
    * REST services (JSON based on header accept)
+   
  2) EXT-JS Javascript UI  	(included in codebase)
    * Datadrop & Iframe plugin
+   
  3) MySQL database
  
 to implement both a Web/HTML and REST/JSON based service platform to
