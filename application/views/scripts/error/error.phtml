@@ -1,0 +1,27 @@
+<?php $this->placeholder('content')->captureStart(); ?>
+	<strong><?php echo $this->message; ?></strong> 
+  <?php if (isset($this->exception)) { ?>
+	  : <?php echo $this->exception->getMessage() ?>
+
+		<hr noshade>  
+	  <pre><?php echo $this->exception->getTraceAsString() ?></pre>
+	<?php  } ?>
+	<hr noshade>
+	<pre><?php echo var_export($this->request->getParams(), true) ?></pre>
+<?php $this->placeholder('content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var bodyItems = [
+			{
+				title: 'Oops.. taking the bad road..',
+				region: 'center',
+				collapsible: false,
+				margins: '5 0 5 5',
+				cmargins: '5 5 5 5',
+				contentEl: 'content_body',
+				bodyStyle:'padding:20px;',
+			}];
+	</script>

@@ -1,0 +1,4 @@
+<?php
+	$result = array('success' => $this->success, 'collections' => array($this->collection->getOptions()));
+	echo Zend_Json::encode($result);
+?>

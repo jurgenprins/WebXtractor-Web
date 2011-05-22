@@ -1,0 +1,7 @@
+<?php
+	$result = array('success' => true, 'total' => count($this->tree), 'collections' => array());
+	foreach($this->tree as $collection) {
+		$result['collections'][] = $collection['obj']->getOptions();
+	}
+	echo Zend_Json::encode($result);
+?>

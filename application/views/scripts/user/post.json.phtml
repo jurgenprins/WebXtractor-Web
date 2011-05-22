@@ -1,0 +1,8 @@
+<?php
+	$result = array(
+		'success' => $this->success,
+		'username' => $this->user->username,
+		'messages' => $this->messages);
+		
+	echo Zend_Json::encode($result);
+?>

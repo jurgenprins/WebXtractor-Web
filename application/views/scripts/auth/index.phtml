@@ -1,0 +1,19 @@
+<?php $this->placeholder('content')->captureStart(); ?>
+	<?php echo $this->form; ?>
+<?php $this->placeholder('content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var bodyItems = [
+			{
+				title: 'Please Login',
+				region: 'center',
+				collapsible: false,
+				margins: '5 0 5 5',
+				cmargins: '5 5 5 5',
+				contentEl: 'content_body',
+				bodyStyle:'padding:20px;',
+			}];
+	</script>

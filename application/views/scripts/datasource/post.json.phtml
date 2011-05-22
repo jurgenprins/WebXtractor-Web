@@ -1,0 +1,4 @@
+<?php
+	$result = array('success' => $this->success, 'datasources' => array($this->datasource->getOptions()));
+	echo Zend_Json::encode($result);
+?>

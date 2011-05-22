@@ -1,0 +1,56 @@
+<?php $this->placeholder('content')->captureStart(); ?>
+	<div id="content_body_intro">
+		<h2>Offers for <?php echo $this->collection->name; ?></h2>
+	</div>
+	<div id="content_body_text">
+	</div>
+<?php $this->placeholder('content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+<?php 
+	echo $this->partial('leftTab.phtml', array(
+		'user' => $this->user, 
+		'tree' => $this->tree)); 
+		
+	$this->headLink()->appendStylesheet($this->baseUrl('/css/wx_offer.css'));
+	$this->headScript()->appendFile($this->baseUrl('/js/wx_offer.js'));	
+	
+	$this->headScript()->appendFile($this->baseUrl('/js/ext-plugins/mif/build/miframe.js'));
+?>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var offerStore = wxOfferStore('<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->id ?>/offers');
+		var bodyItems = [leftTab, {
+				xtype: 'tabpanel',
+				title: '<?php echo addslashes($this->collection->name); ?>',
+				region: 'center',
+				margins: '5 5 5 0',
+				tabPosition: 'bottom',
+				activeTab: 0,
+				border: false,
+				items: [
+					wxOfferView(offerStore, true),
+					{
+						title: 'Items',
+						layout: 'fit',
+						html: 'Loading Items...',
+						listeners: {
+							render: function(){
+								document.location.href='items/';
+							}
+						},
+					},
+					{
+						title: 'Datasources',
+						layout: 'fit',
+						html: 'Loading Datasources...',
+						listeners: {
+							render: function(){
+								document.location.href='datasources/';
+							}
+						},
+					}
+				]
+			}];
+	</script>

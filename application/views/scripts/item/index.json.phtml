@@ -1,0 +1,9 @@
+<?php
+	$result = array('success' => true, 'total' => $this->itemscount, 'items' => array());
+	foreach($this->items as $item) {
+		$res_item = $item->getOptions();
+		$res_item['offerscount'] = $item->getOfferscount();
+		$result['items'][] = $res_item;
+	}
+	echo Zend_Json::encode($result);
+?>

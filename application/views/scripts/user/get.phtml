@@ -1,0 +1,28 @@
+<?php $this->placeholder('content')->captureStart(); ?>
+<span style="font-family: Verdana; font-size: 12px">
+Select one of your collections to view the latest offers
+<br/>
+OR
+<br/>
+Create a new collection
+</span>
+<?php $this->placeholder('content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+<?php 
+	echo $this->partial('leftTab.phtml', array(
+		'user' => $this->user, 
+		'tree' => $this->tree)); 
+?>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var bodyItems = [leftTab,
+			{
+				xtype: 'panel',
+				title: 'Welcome, <?php echo addslashes($this->user->fullname); ?>',
+				region: 'center',
+				margins: '5 5 5 0',
+				contentEl: 'content_body'
+			}];
+	</script>

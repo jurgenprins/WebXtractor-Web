@@ -1,0 +1,28 @@
+<?php 
+	echo $this->partial('header.phtml');
+	$this->placeholder('title')->set('Public Collections');
+	$this->placeholder('content')->captureStart();
+?>
+	<h5>What's Popular</h5>
+		<table style="font-size:10pt; width:550px">
+			<thead>
+				<tr><th width="150" align="left">Collection</th><th width="150" align="left">Items</th><th width="150" align="left">Subscribers</th><th width="100" ></th></tr>
+			</thead>
+			<tbody>
+				<tr><td>Star Trek Movies</td><td>12</td><td>2304</td><td><input type="button" value="Add to My Stuff"/></td></tr>
+			</tbody>
+		</table>
+	<h5>Recently added</h5>
+		<table style="font-size:10pt; width:550px">
+			<thead>
+				<tr><th width="150" align="left">Collection</th><th width="150" align="left">Items</th><th width="150" align="left">Subscribers</th><th width="100" ></th></tr>
+			</thead>
+			<tbody>
+				<tr><td>Kuifje comics</td><td>24</td><td>3</td><td><input type="button" value="Add to My Stuff"/></td></tr>
+			</tbody>
+		</table>
+	
+<?php
+	$this->placeholder('content')->captureEnd();
+	echo $this->partial('footer.phtml');
+?>

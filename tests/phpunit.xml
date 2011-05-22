@@ -1,0 +1,22 @@
+<phpunit bootstrap="./bootstrap.php">
+    <testsuite name="WebXtractor Test Suite">
+        <directory>./</directory>
+    </testsuite>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">../library/WebXtractor</directory>
+            <directory suffix=".php">../application/</directory>
+            <exclude>
+                <directory suffix=".phtml">../application/views</directory>
+                <file>../application/Bootstrap.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="./log/report" charset="UTF-8"
+            yui="false" highlight="true"
+            lowUpperBound="50" highLowerBound="80"/>
+    </logging>
+</phpunit>

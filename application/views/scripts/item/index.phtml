@@ -1,0 +1,184 @@
+<?php $this->placeholder('content')->captureStart(); ?>
+	<div id="content_body_intro">
+		<h2>Items for <?php echo $this->collection->name; ?></h2>
+	</div>
+	<div id="content_body_text">
+		<ul>
+<?	foreach	($this->items as $item): ?>
+			<li><a href="<?php echo	$this->baseUrl($this->navigation()->findOneById('user_collections')->getUri()	.	$this->collection->name); ?>/items/<?php echo $item->id ?>/"><?php echo $item->name ?></a>
+<?  endforeach; ?>
+		</ul>
+	</div>
+<?php $this->placeholder('content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+<?php 
+	echo $this->partial('leftTab.phtml', array(
+		'user' => $this->user, 
+		'tree' => $this->tree));
+		
+	$this->headLink()->appendStylesheet($this->baseUrl('/css/wx_offer.css'));
+	$this->headScript()->appendFile($this->baseUrl('/js/wx_offer.js'));			
+	
+	$this->headScript()->appendFile($this->baseUrl('/js/ext-plugins/mif/build/miframe.js'));
+	$this->headScript()->appendFile($this->baseUrl('/js/ext-plugins/datadrop/Override.js'));
+	$this->headScript()->appendFile($this->baseUrl('/js/ext-plugins/datadrop/Ext.ux.DataDrop.js'));
+?>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var itemStore = new Ext.data.JsonStore({
+			restful: true,
+			proxy : new Ext.data.HttpProxy({
+		    url: '<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->id ?>/items',
+		    headers: {'Accept': 'application/json'}
+		 	}),
+			root: 'items',
+			fields : [ { name: 'id'}, { name: 'name'}, { name: 'offerscount' } ],
+			idProperty: 'id',
+			totalProperty: 'total',
+			successProperty: 'success',							
+			autoLoad: true,
+			autoSave: true,
+			writer: new Ext.data.JsonWriter({ encode: false, writeAllFields: true  }),
+			baseParams: {start:0,limit:10}
+		});
+		var bodyItems = [leftTab,
+			{
+				xtype: 'tabpanel',
+				title: '<?php echo addslashes($this->collection->name); ?>',
+				region: 'center',
+				margins: '5 5 5 0',
+				tabPosition: 'bottom',
+				activeTab: 1,
+				border: false,
+				items: [
+				{
+					title: 'Offers',
+					layout: 'fit',
+					html: 'Loading Offers...',
+					listeners: {
+						render: function(){
+							document.location.href='../';
+						}
+					},
+				},
+				{
+					title: 'Items',
+					layout: 'fit',
+					border: true,
+					items: [{
+						title: '<?php echo addslashes($this->collection->name); ?> Items',
+						id: 'grid_items',
+						xtype: 'editorgrid',
+						layout:	'fit',
+						border:	false,
+						loadMask: true,
+						plugins: [Ext.ux.grid.DataDrop],
+						sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+						store: itemStore,
+						columns: [
+							{ id: 'name', dataIndex: 'name', header: 'Name', width: '95%', sortable: true, editor: new Ext.form.TextField() },
+							{ dataIndex: 'offerscount', header: 'Offers', }
+						],
+						tbar: [
+						{
+	            text: 'Add',
+	            handler : function(btn, ev) {
+            		var grid = Ext.getCmp('grid_items');
+            		var store = grid.getStore();
+            		grid.stopEditing();
+                store.insert(0, new store.recordType());
+                grid.startEditing(0, 0);
+	            }
+		        },'-',
+		        {
+		        	text: 'Delete',
+		        	handler : function(btn, ev) {	
+		        		Ext.MessageBox.show({
+									title:'Delete?',
+									msg: 'Really delete this item and its offers?',
+									buttons: Ext.MessageBox.YESNO,
+									icon: Ext.MessageBox.QUESTION,
+									fn : function(btn){
+										if(btn == "yes"){
+											var grid = Ext.getCmp('grid_items');
+					        		var store = grid.getStore();
+					         		var rec = grid.getSelectionModel().getSelected();
+							        store.remove(rec);
+										} 
+									}
+								});
+        			}
+        		}],
+						bbar: new Ext.PagingToolbar({
+							pageSize: 10,
+							store: itemStore
+						}),
+						listeners:{
+							rowcontextmenu: function(grid, rowIndex, e){
+								e.stopEvent();
+								grid.menu = new Ext.menu.Menu({
+									id:'item-ctx',
+									items:[{
+										text: 'Offers..',
+										scope: this,
+										handler: function() {
+											var offerStore = wxOfferStore('<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->id ?>/items/' + this.store.getAt(rowIndex).get('id') + '/offers');
+											var win = new Ext.Window({
+                        width: 850,
+                        height: 600,
+                        modal: 'true',
+                        layout: 'fit',
+                        title: 'Offers',
+                        items: [{
+													id: 'offer-view',
+													frame: true,
+													layout: 'fit',
+													border: false,
+													autoScroll: true,
+													items: [wxOfferView(offerStore, false)],
+													bbar: new Ext.PagingToolbar({
+														pageSize: 10,
+														store: offerStore
+													})
+												}],
+											});
+                      win.show();
+										}
+									},'-',
+									{
+										text: 'Delete',
+										scope: this,
+										handler: function() {
+											Ext.MessageBox.show({
+												title:'Delete?',
+												msg: 'Really delete this item and its offers?',
+												buttons: Ext.MessageBox.YESNO,
+												icon: Ext.MessageBox.QUESTION,
+												fn : function(btn){
+													if(btn == "yes"){
+														this.store.removeAt(rowIndex);
+													} 
+												}
+											});
+										}
+									}]
+								});
+								grid.menu.showAt(e.getXY());
+							}
+            }
+        	}]
+				},
+				{
+					title: 'Datasources',
+					layout: 'fit',
+					html: 'Loading Datasources...',
+					listeners: {
+						render: function(){
+							document.location.href='../datasources/';
+						}
+					},
+				}]
+			}];
+	</script>

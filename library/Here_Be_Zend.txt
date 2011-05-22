@@ -1,0 +1,8 @@
+ZEND DEPENDENCY
+---------------
+the default implementation of this project expects 
+a copy of the Zend library in this directory:
+
+ ./Zend
+
+(tested with Zend_Version.VERSION == '1.10.3')

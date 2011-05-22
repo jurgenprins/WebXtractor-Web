@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <nav>
+  			<home>
+  					<id>home</id>
+            <label>WebXtractor Alpha</label>
+            <order>-100</order>
+            <uri>/</uri>
+        </home> 
+    </nav>
+</config>

@@ -1,0 +1,141 @@
+	<div id="leftTab"><div id="leftTab_body">
+		<div id="leftTab_body_intro">
+			<h2>Welcome, <?php echo $this->user->fullname; ?></h2>
+		</div>
+		<div id="leftTab_body_text">
+			<ul>
+				<li><a href="<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() ?>">Collections</a></li>
+				<li><a href="<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_profile')->getUri() ?>">Profile</a></li>
+			</ul>
+		</div>
+	</div></div>
+	<script>
+		Ext.get('leftTab').set({style: {display: 'none'}});
+		var collectionStore = new Ext.data.JsonStore({
+			restful: true,
+			proxy : new Ext.data.HttpProxy({
+				url: '<?php echo $this->baseUrl() . substr($this->navigation()->findOneById('user_collections')->getUri(), 0, -1); ?>',
+		    headers: {'Accept': 'application/json'}
+		 	}),
+			root: 'collections',
+			fields : [ { name: 'id'}, { name: 'name'} ],
+			idProperty: 'id',
+			totalProperty: 'total',
+			successProperty: 'success',							
+			autoLoad: true,
+			autoSave: true,
+			writer: new Ext.data.JsonWriter({ encode: false, writeAllFields: true  }),
+			baseParams: {start:0,limit:10}
+		});
+		var	leftTab	=	{
+			title: '<?php	echo $this->user->fullname;	?>',
+			xtype: 'tabpanel',
+			tabPosition: 'bottom',
+			activeTab: 0,
+			region:	'west',
+			collapsible: false,
+			width: 175,
+			margins: '5	0	5	5',
+			cmargins:	'5 5 5 5',
+			bodyStyle:'padding:0px;',
+			border: false,
+			split: true,
+			items: [
+			{
+				title: 'Collections',
+				layout:	'fit',
+				xtype: 'panel',
+				bodyStyle:'padding:0px;',
+				border:	true,
+				items: [{
+					title: 'Collections',
+					id: 'grid_collections',
+					xtype: 'editorgrid',
+					layout:	'fit',
+					border:	false,
+					loadMask: true,
+					sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+					store: collectionStore,
+					columns: [
+						{ id: 'name', dataIndex: 'name', header: 'Name', width: 160, editor: new Ext.form.TextField() },
+					],
+					tbar: [
+					{
+            text: 'Add',
+            handler : function(btn, ev) {
+          		var grid = Ext.getCmp('grid_collections');
+          		var store = grid.getStore();
+          		grid.stopEditing();
+              store.insert(0, new store.recordType());
+              grid.startEditing(0, 0);
+            }
+	        },'-',
+	        {
+	        	text: 'Delete',
+	        	handler : function(btn, ev) {	
+	        		var grid = Ext.getCmp('grid_collections');
+	        		var store = grid.getStore();
+	         		var rec = grid.getSelectionModel().getSelected();
+			        store.remove(rec);
+      			}
+      		}],
+					listeners: {
+						render: function(g) {
+							g.getSelectionModel().selectRow(1);
+						},
+						cellclick: function(grid, rowIndex, columnIndex, e) {
+							location.href='<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() ?>' + this.store.getAt(rowIndex).get('name') + '/';
+						},
+						rowcontextmenu: function(grid, rowIndex, e) {
+							e.stopEvent();
+							if(!grid.menu){
+								grid.menu = new Ext.menu.Menu({
+									id:'ds-cts',
+									items:[
+									{
+										text: 'Edit',
+										scope: this,
+										handler: function() {
+											grid.startEditing(rowIndex, 0);
+										}
+									},
+									{
+										text: 'Delete',
+										scope: this,
+										handler: function() {
+											Ext.MessageBox.show({
+												title:'Delete?',
+												msg: 'Really delete this collection, its items and its offers?',
+												buttons: Ext.MessageBox.YESNO,
+												icon: Ext.MessageBox.QUESTION,
+												fn : function(btn){
+													if(btn == "yes"){
+														this.store.removeAt(rowIndex);
+													} 
+												}
+											});
+										}
+									}]
+								});
+							}
+							grid.menu.showAt(e.getXY());
+						},
+						delay: 10
+					},
+					layout:	'fit',
+					border:	false
+				}]
+			},
+			{
+				title: 'Profile',
+				border:	false,
+				layout:	'fit',
+				items: [{
+					title: 'Profile',
+					bodyStyle:'padding:10px;',
+					border:	false,
+					html:	'Your	profile..',
+				}]
+			}]
+		};
+	</script>

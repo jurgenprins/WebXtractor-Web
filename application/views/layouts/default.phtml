@@ -1,0 +1,42 @@
+<?php echo $this->doctype() . "\n" ?>
+<html>
+<head>
+<?php
+echo $this->headMeta()->setIndent('  ') . "\n";
+echo $this->headTitle()->setIndent('  ') . "\n";
+echo $this->headLink()
+				->prependStylesheet($this->baseUrl('/js/ext/resources/css/ext-all.css'));
+echo $this->headScript()
+				->prependFile($this->baseUrl('/js/ext/ext-all.js'))
+				->prependFile($this->baseUrl('/js/ext/adapter/ext/ext-base.js'));
+echo $this->headStyle();
+?>
+	<script>
+		Ext.onReady(function(){
+			new Ext.Viewport(
+			{
+				layout: 'border',
+				renderTo: Ext.getBody(),
+				items: [
+				{
+					region: 'north',
+					xtype: 'toolbar',
+					height: '20',
+					items: menuItems
+				},
+				{
+					region: 'center',
+					cls: 'content', 
+					layout: 'border',
+					hideMode: Ext.isIE ? 'offsets' : 'display',
+					items: bodyItems
+				}]
+			});
+		});
+	</script>
+</head>
+<body>	
+<?php echo $this->layout()->content; ?>
+<?php echo $this->partial('menu.phtml'); ?>
+</body>
+</html>

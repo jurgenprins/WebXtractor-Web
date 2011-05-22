@@ -1,0 +1,15 @@
+<?php
+	$result = array('success' => true, 'total' => count($this->datasources), 'datasources' => array());
+	foreach($this->datasources as $datasource) {
+		$res_ds = $datasource->getOptions();
+		/*
+		foreach($datasource->getDatasourceattributes() as $attr) {
+			if ($attr->getName() == 'LastRun') {
+				$res_ds['lastrun'] = date('d M Y H:i', $attr->getVal());
+			}
+		}
+    */	
+		$result['datasources'][] = $res_ds;
+	}
+	echo Zend_Json::encode($result);
+?>

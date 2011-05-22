@@ -1,0 +1,112 @@
+<?php 
+	$this->placeholder('content')->captureStart(); 
+	if (!$this->navigation()->findOneById('user_collections')) { 
+?>
+	<table width="100%"><tr><td align="center">
+		<table><tr><td><font face="Verdana" style="font-size:12px">
+			<b>&rarr; SCAN any website</b> - for items of your interest<br/>
+			<b>&rarr; SORT items</b> - into your own collections<br/>
+			<b>&rarr; UPDATES via Email or RSS</b> - conveniently organized
+		</font></td></tr></table>
+		<br/>
+		<span id="accountCred"></span>
+		<br/>
+		<font face="Verdana" style="font-size:10px">
+			This service is still in Alpha testing.<br/>
+			You can use it, but there will be functionalities missing or not behaving as expected.<br/>
+			The upside is that there are no quotas or any other usage limits!<br/>
+			For any feedback or comments, mail info at bokella.com
+		</font>
+	</td></tr></table>
+<?php 
+	} else { 
+		header("Location: " . $this->baseUrl($this->navigation()->findOneById('user_collections')->getUri()));
+		exit;
+	}
+	$this->placeholder('content')->captureEnd(); 
+?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var accountForm = new Ext.FormPanel({
+			width: 340,
+			frame: false,
+			border: false,
+			renderTo:'accountCred',
+			items: [
+				new Ext.form.FieldSet({
+					autoHeight: true,
+					defaultType: 'textfield',
+					items: [{
+						fieldLabel: 'Username',
+						emptyText: '',
+						name: 'username',
+						width:190
+					},{
+						fieldLabel: 'Password',
+						inputType: 'password',
+						emptyText: '',
+						name: 'passwd',
+						width:190
+					}]
+				})
+			],
+			buttons: [{
+				text:'Login',
+				handler: function() {
+					Ext.Ajax.request({
+						url: '/auth/login',
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						params: Ext.util.JSON.encode(accountForm.getForm().getValues()),
+						waitMsg: 'authenticating..',
+						success: function (msg) {
+							result = Ext.decode(msg.responseText);
+							document.location.href = '/user/' + result.username;
+						},
+						failure: function (msg) {
+							result = Ext.decode(msg.responseText);
+							Ext.Msg.alert('Sorry!', result.messages);
+						}
+		      });
+				}
+			},{
+				text:'Create',
+				handler: function() {
+					Ext.Ajax.request({
+						url: '/user',
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						params: Ext.util.JSON.encode(accountForm.getForm().getValues()),
+						waitMsg: 'creating..',
+						success: function (msg) {
+							result = Ext.decode(msg.responseText);
+							document.location.href = '/user/' + result.username;
+						},
+						failure: function (msg) {
+							result = Ext.decode(msg.responseText);
+							Ext.Msg.alert('Sorry!', result.messages);
+						}
+		      });
+				}
+			}]
+		});
+		var bodyItems = [
+			{
+				xtype: 'panel',
+				region: 'center',
+				collapsible: false,
+				margins: '5 0 5 5',
+				cmargins: '5 5 5 5',
+				contentEl: 'content_body',
+				bodyStyle:'padding:20px;',
+			}];
+   </script>

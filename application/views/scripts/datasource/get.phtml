@@ -1,0 +1,139 @@
+<?php $this->placeholder('datasource_content')->captureStart(); ?>
+	<span style="font-size:12px">
+		Specify URL, give it a nice name, and choose how to extract stuff from it:
+	</span>
+	<?php echo $this->datasource_form; ?>
+<?php
+	$this->placeholder('datasource_content')->captureEnd();
+	
+	$this->placeholder('extractor_content')->captureStart();
+?>
+	<span style="font-size:12px">
+		Tweak the way the extraction takes place:
+	</span>
+<?php	
+	echo $this->datasource_extractor_form; 
+	$this->placeholder('extractor_content')->captureEnd();
+	
+	$this->placeholder('indexer_content')->captureStart();
+?>
+	<span style="font-size:12px">
+		Specify when and how extraction will run:
+	</span>
+<?php		
+	echo $this->datasource_indexer_config_form;
+?>
+	<br/>
+	<span style="font-size:12px">
+		<table>
+<?php
+	foreach($this->datasource->datasourceattributes as $attr) {
+		switch($attr->name) {
+			case 'LastRun':
+				echo '<tr><td>Last run:</td><td>' . date('d M Y H:i', $attr->val) . '</td></tr>';
+				break;
+			case 'RunStatus':
+				echo '<tr><td>Status:</td><td>';
+				switch($attr->val) {
+					case 1: echo 'scheduled to run'; break;
+					case 2: echo 'running'; break;
+					default: echo 'idle'; 
+				}
+				echo '</td></tr>';
+				break;
+			default:			
+		}
+	}
+?>
+		</table>
+	</span>
+<?php $this->placeholder('indexer_content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+		<div id="content_body_datasource">
+			<?php	echo $this->placeholder('datasource_content'); ?>
+		</div>
+		<div id="content_body_extractor">
+			<?php	echo $this->placeholder('extractor_content'); ?>
+		</div>
+		<div id="content_body_indexer">
+			<?php	echo $this->placeholder('indexer_content'); ?>
+		</div>
+	</div></div>
+<?php 
+	echo $this->partial('leftTab.phtml', array(
+		'user' => $this->user, 
+		'tree' => $this->tree)); 
+?>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var bodyItems = [leftTab,
+			{
+				xtype: 'tabpanel',
+				title: '<?php echo addslashes($this->collection->name); ?>',
+				region: 'center',
+				margins: '5 5 5 0',
+				tabPosition: 'bottom',
+				activeTab: 2,
+				border: false,
+				items: [
+				{
+					title: 'Offers',
+					layout: 'fit',
+					html: 'Loading Offers...',
+					listeners: {
+						render: function(){
+							document.location.href='../';
+						}
+					},
+				},
+				{
+					title: 'Items',
+					layout: 'fit',
+					html: 'Loading Items...',
+					listeners: {
+						render: function(){
+							document.location.href='../../items/';
+						}
+					},
+				},
+				{
+					title: 'Datasources',
+					layout: 'fit',
+					border: true,
+					items: [{
+						title: 'Datasource "<?php echo addslashes($this->datasource->name) ?>"',
+						layout: 'accordion',
+						border: false,
+	<?php
+		switch($this->active) {
+			case 'datasource_extractor_form': 
+				$active = 1; break;
+			case 'datasource_indexer_config_form': 
+			case 'datasource_indexer_run_form': 
+				$active = 2; break;
+			default:
+				$active = 0;
+		}
+	?>
+						activeItem: <?php echo $active ?>,	
+						items: [
+						{
+							id: 'content_body_datasource_tab',
+							title: 'Datasource',
+							contentEl: 'content_body_datasource'
+						},
+						{
+							id: 'content_body_extractor_tab',
+							title: '<?php echo addslashes($this->datasource->extractor->name) ?>',
+							contentEl: 'content_body_extractor'
+						},
+						{
+							id: 'content_body_indexer_tab',
+							title: 'Indexer',
+							contentEl: 'content_body_indexer'
+						}]
+					}]
+				}]
+			}];
+	</script>
+?>

@@ -1,0 +1,22 @@
+<?php
+foreach ($this->offers as $offer){
+	$entries[] = array(
+		'title'       => $offer->name,
+		'link'        => $offer->url,
+		'description' => $offer->name,
+	);
+
+}
+
+// Create the RSS array
+$rss = array(
+	'title'   => 'cocktailberater',
+	'link'    => 'http://www.cocktailberater.de',
+	'charset' => 'UTF-8',
+	'entries' => $entries
+);
+
+// Import the array
+$feed = Zend_Feed::importArray($rss, $this->format);
+print $feed->saveXML();
+?>

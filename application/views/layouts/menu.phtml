@@ -1,0 +1,46 @@
+	<script>
+		var menuItems = [<?php
+		foreach ($this->navigation()->getContainer() as $page) {
+			if ($page->label == 'LOGOUT') {
+?>
+				{
+					xtype: 'tbfill'
+				},
+<?			
+			}
+			$state 	= $page->isActive(true);
+			$url  	= $this->baseUrl() . $page->href;
+?>		
+				{
+						xtype: 'tbbutton',
+						text: '<?php echo strtoupper($page->label); ?>',
+						
+<?php  if (count($page->pages)) { ?>
+						menu: [<?php
+			foreach($page->pages as $subpage) {
+				$state	= $subpage->isActive(true);
+				$url   	= $this->baseUrl() . $subpage->href;
+?>
+							{ 
+								text: '<?php echo $subpage->label; ?>', 
+								handler: function(){
+									location.href = '<?php echo $url; ?>';
+								}
+							},
+<?php
+			}
+?>]
+<?php
+		} else {
+?>
+						handler: function(){
+							 location.href = '<?php echo $url; ?>';
+						}
+<?
+		}
+?>
+				},
+<?php
+		}
+?>	];
+	</script>

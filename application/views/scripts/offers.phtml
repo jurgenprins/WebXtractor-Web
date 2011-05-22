@@ -1,0 +1,63 @@
+<div id="offers"></div>
+<script>
+Ext.onReady(function(){
+    var xd = Ext.data;
+
+    var store = new Ext.data.JsonStore({
+        url: '?format=json',
+        root: 'offers',
+        fields: ['id', 'name', 'url', 'img']
+    });
+    store.load();
+
+    var tpl = new Ext.XTemplate(
+		'<tpl for=".">',
+        '<div class="thumb-wrap" id="{id}">',
+		    '<div class="thumb"><a href="{url}" target="_new"><img src="{img}" title="{name}" width="150"></div>',
+		    '<span class="x-editable">{shortName}</span></div>',
+        '</tpl>',
+        '<div class="x-clear"></div>'
+	);
+
+    var panel = new Ext.Panel({
+        id:'images-view',
+        frame:true,
+        width:535,
+        autoHeight:true,
+        collapsible:false,
+        layout:'fit',
+        title:'Simple DataView (0 items selected)',
+
+        items: new Ext.DataView({
+            store: store,
+            tpl: tpl,
+            autoHeight:true,
+            multiSelect: true,
+            overClass:'x-view-over',
+            itemSelector:'div.thumb-wrap',
+            emptyText: 'No images to display',
+/*
+            plugins: [
+                new Ext.DataView.DragSelector(),
+                new Ext.DataView.LabelEditor({dataIndex: 'name'})
+            ],
+*/
+            prepareData: function(data){
+                data.shortName = Ext.util.Format.ellipsis(data.name, 15);
+                return data;
+            },
+            
+            listeners: {
+            	selectionchange: {
+            		fn: function(dv,nodes){
+            			var l = nodes.length;
+            			var s = l != 1 ? 's' : '';
+            			panel.setTitle('Simple DataView ('+l+' item'+s+' selected)');
+            		}
+            	}
+            }
+        })
+    });
+    panel.render(document.getElementById('offers'));
+});
+</script>

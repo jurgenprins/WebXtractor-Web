@@ -1,0 +1,4 @@
+<?php
+	$result = array('success' => $this->success, 'total' => $this->offerscount, 'offers' => $this->offers);
+	echo Zend_Json::encode($result);
+?>

@@ -1,0 +1,223 @@
+<?php $this->placeholder('content')->captureStart(); ?>
+	<div id="content_body_intro">
+		<h2>Datasources for <?php echo $this->collection->name; ?></h2>
+	</div>
+	<div id="content_body_text">
+		<ul>
+<?	foreach	($this->datasources as $datasource): ?>
+			<li><a href="<?php echo	$this->baseUrl($this->navigation()->findOneById('user_collections')->getUri()	.	$this->collection->name); ?>/datasources/<?php echo $datasource->id ?>/"><?php echo $datasource->name ?></a>
+<?  endforeach; ?>
+		</ul>
+	</div>
+<?php $this->placeholder('content')->captureEnd(); ?>
+	<div id="content"><div id="content_body">
+<?php	echo $this->placeholder('content'); ?>
+	</div></div>
+<?php 
+	echo $this->partial('leftTab.phtml', array(
+		'user' => $this->user, 
+		'tree' => $this->tree)); 
+	
+	$this->headScript()->appendFile($this->baseUrl('/js/ext-plugins/mif/build/miframe.js'));
+?>
+	<script>
+		Ext.get('content').set({style: {display: 'none'}});
+		var datasourceStore = new Ext.data.JsonStore({
+			restful: true,
+			proxy : new Ext.data.HttpProxy({
+				url: '<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->id ?>/datasources',
+		    headers: {'Accept': 'application/json'}
+		 	}),
+			root: 'datasources',
+			fields : [ { name: 'id'}, { name: 'url'}, { name: 'idextractor' } ],
+			idProperty: 'id',
+			totalProperty: 'total',
+			successProperty: 'success',							
+			autoLoad: true,
+			autoSave: true,
+			writer: new Ext.data.JsonWriter({ encode: false, writeAllFields: true  }),
+			baseParams: {start:0,limit:10}
+		});
+		var bodyItems = [leftTab,
+			{
+				xtype: 'tabpanel',
+				title: '<?php echo addslashes($this->collection->name); ?>',
+				region: 'center',
+				margins: '5 5 5 0',
+				tabPosition: 'bottom',
+				activeTab: 2,
+				border: false,
+				items: [
+				{
+					title: 'Offers',
+					layout: 'fit',
+					html: 'Loading Offers...',
+					listeners: {
+						render: function(){
+							document.location.href='../';
+						}
+					},
+				},
+				{
+					title: 'Items',
+					layout: 'fit',
+					html: 'Loading Items...',
+					listeners: {
+						render: function(){
+							document.location.href='../items/';
+						}
+					},
+				},
+				{
+					title: 'Datasources',
+					layout: 'fit',
+					border: true,
+					items: [{
+						title: '<?php echo addslashes($this->collection->name); ?> Datasources',
+						id: 'grid_datasources',
+						xtype: 'editorgrid',
+						layout:	'fit',
+						border:	false,
+						loadMask: true,
+						sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+						store: datasourceStore,
+						columns: [
+							{ dataIndex: 'url', header: 'URL', width: '95%', editor: new Ext.form.TextField() },
+							{ dataIndex: 'idextractor', header: 'Type', width: 100, align: 'right',  
+								renderer: function(id) {
+									var idx = this.editor.store.find('id', id);
+									if (idx != -1) {
+										return this.editor.store.getAt(idx).get('name');
+									}
+									return '';
+								},
+								editor: new Ext.form.ComboBox({
+	                typeAhead: true,
+	                forceSelection: true,
+	                mode: 'local',
+	                triggerAction: 'all',
+	                valueField: 'id',
+	                displayField: 'name',
+	                preFocus: function() {
+										if(this.selectOnFocus) {
+											this.el.dom.select();
+										}
+									},
+	                store: new Ext.data.SimpleStore({
+	                	data: [[ 1, 'HTML' ], [ 2, 'Feed' ]],
+	                	fields: ['id', 'name'],
+	                	autoLoad: true
+	                })
+	            	})
+ 							},
+						],
+						tbar: [
+						{
+	            text: 'Add',
+	            handler : function(btn, ev) {
+            		var grid = Ext.getCmp('grid_datasources');
+            		var store = grid.getStore();
+            		grid.stopEditing();
+                store.insert(0, new store.recordType());
+                grid.startEditing(0, 0);
+	            }
+		        },'-',
+		        {
+		        	text: 'Delete',
+		        	handler : function(btn, ev) {
+		        		Ext.MessageBox.show({
+									title:'Delete?',
+									msg: 'Really delete this datasource?',
+									buttons: Ext.MessageBox.YESNO,
+									icon: Ext.MessageBox.QUESTION,
+									fn : function(btn){
+										if(btn == "yes"){
+											var grid = Ext.getCmp('grid_datasources');
+					        		var store = grid.getStore();
+					         		var rec = grid.getSelectionModel().getSelected();
+							        store.remove(rec);
+										} 
+									}
+								});
+        			}
+        		}],
+						bbar: new Ext.PagingToolbar({
+							pageSize: 10,
+							store: datasourceStore
+						}),
+						listeners:{
+							rowcontextmenu: function(grid, rowIndex, e){
+								e.stopEvent();
+								var menu = new Ext.menu.Menu({
+									id:'ds-cts',
+									items:[
+									{
+										text: 'Edit',
+										scope: this,
+										handler: function() {
+											location.href='<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->name ?>/datasources/' + this.store.getAt(rowIndex).get('id') + '/';
+										}
+									},
+									{
+										text: 'Delete',
+										scope: this,
+										handler: function() {
+											Ext.MessageBox.show({
+												title:'Delete?',
+												msg: 'Really delete this datasource?',
+												buttons: Ext.MessageBox.YESNO,
+												icon: Ext.MessageBox.QUESTION,
+												fn : function(btn){
+													if(btn == "yes"){
+														datasourceStore.removeAt(rowIndex);
+													} 
+												}
+											});
+										}
+									},
+									'-',
+									{
+										text: 'Open URL..',
+										scope: this,
+										handler: function() {
+											var win = new Ext.Window({
+                        width: 850,
+                        height: 600,
+                        modal: 'true',
+                        layout: 'fit',
+                        title: this.store.getAt(rowIndex).get('name'),
+                        items: [{
+                          xtype: 'iframepanel',
+                          id: 'view',
+                          defaultSrc: this.store.getAt(rowIndex).get('url'),
+                          loadMask: false
+                        }],
+											});
+                      win.show();
+										}
+									},
+									{
+										text: 'Run',
+										scope: this,
+										handler: function() {
+											Ext.Ajax.timeout = 120000;
+											Ext.Ajax.request({
+												url: '<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->name ?>/datasources/' + this.store.getAt(rowIndex).get('id') + '/_run',
+												method: 'GET',
+												headers: {'Accept': 'application/json'},
+												success: function(msg) {
+													Ext.MessageBox.alert('Run Datasource', 'Datasource run finished..');
+													location.href = '<?php echo $this->baseUrl() . $this->navigation()->findOneById('user_collections')->getUri() . $this->collection->name ?>/';
+												}
+											});
+											Ext.MessageBox.alert('Run Datasource', 'Datasource ' + this.store.getAt(rowIndex).get('url') + ' running.. this may take a while.. when done you will be automatically redirected to offer page');
+										}
+									}]
+								});
+								menu.showAt(e.getXY());
+							}
+            }
+        	}]
+				}]
+			}];
+	</script>
